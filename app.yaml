@@ -1,0 +1,21 @@
+#Outdate
+
+runtime: python39
+
+env_variables:
+  INSTANCE_CONNECTION_NAME: project-4-455718:us-central1:project4-db
+  DB_HOST: 34.27.36.169
+  DB_USER: root
+  DB_PASSWORD: project4db
+  DB_NAME: project4-db
+  FLASK_ENV: production
+  GOOGLE_CLOUD_PROJECT: project-4-455718
+
+entrypoint: gunicorn -b :$PORT app:app
+
+handlers:
+  - url: /static
+    static_dir: static/
+
+beta_settings:
+  cloud_sql_instances: project-4-455718:us-central1:project4-db
