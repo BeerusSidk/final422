@@ -139,15 +139,11 @@ resource "google_compute_instance" "flask_vm" {
     apt-get install -y python3-pip python3-dev
     apt-get install -y git
 
-    # Clone the Flask app repository (replace with your actual repository)p
-    cd /home/duckhoi311
-    git clone https://github.com/BeerusSidk/tempFinal422.git
-    cd tempFinal422/SE4220_Project5/photogallery
+    git clone https://github.com/BeerusSidk/tempFinal422.git /home/duckhoi311/tempFinal422
+    cd /home/duckhoi311/tempFinal422/SE4220_Project5/photogallery
 
-    #revert back to the project4 commit
-    git checkout project4
+    git checkout master
 
-    # Install Python dependencies
     sudo pip3 install -r requirements.txt
 
     # Set up environment variables for the Flask app
