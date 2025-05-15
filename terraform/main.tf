@@ -156,8 +156,8 @@ resource "google_compute_instance" "flask_vm" {
     sudo apt-get install -y python3-pip python3-dev
     sudo apt-get install -y git
 
-    git clone https://github.com/BeerusSidk/final422.git /home/duckhoi311
-    cd /home/duckhoi311/tempFinal422
+    git clone https://github.com/BeerusSidk/final422.git /home/duckhoi311/final
+    cd /home/duckhoi311/final
 
     git checkout master
 
