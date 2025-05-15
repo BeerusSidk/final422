@@ -164,14 +164,16 @@ resource "google_compute_instance" "flask_vm" {
     sudo pip3 install -r requirements.txt
 
     # Set up environment variables for the Flask app
-    export INSTANCE_CONNECTION_NAME="${google_sql_database_instance.finalexam422_mysql_instance.connection_name}" 
-    export DB_USER="${var.db_user}" 
-    export DB_PASSWORD="${var.db_password}" 
-    export DB_NAME="${var.db_name}" 
-    export FLASK_ENV="production"
-    export GOOGLE_CLOUD_PROJECT="${var.project_id}"
-    export STORAGE_NAME="${google_storage_bucket.finalexam422_bucket.name}"
-    export PORT="${var.port}"
+
+    cat <<EOF > /home/duckhoi311/final422/.env
+    INSTANCE_CONNECTION_NAME="${google_sql_database_instance.finalexam422_mysql_instance.connection_name}"
+    DB_USER="${var.db_user}"
+    DB_PASSWORD="${var.db_password}"
+    DB_NAME="${var.db_name}"
+    GOOGLE_CLOUD_PROJECT="${var.project_id}"
+    STORAGE_NAME="${google_storage_bucket.finalexam422_bucket.name}"
+    PORT="${var.port}""
+    EOF
 
     python3 init/init.py
 
