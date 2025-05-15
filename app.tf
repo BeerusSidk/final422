@@ -41,18 +41,22 @@ resource "google_compute_firewall" "flask-app-firewall" {
   source_ranges = ["0.0.0.0/0"]  # Allow from whatever IP addresses
 }
 
-# Firewall Rule to Allow MySQL Access from VM (Private IP Only)
-# resource "google_compute_firewall" "mysql-access-firewall" {
-#   name    = "mysql-access-firewall"
-#   network = google_compute_network.finalexam422_vpc.name
+######################
+# Storage and bucket #
+######################
 
-#   allow {
-#     protocol = "tcp"
-#     ports    = ["3306"]  # MySQL port
-#   }
+resource "google_storage_bucket" "finalexam422_bucket" {
+  name = "finalexam422-bucket"
+  location = "US"
+  storage_class = "STANDARD"
+}
 
-#   source_ranges = ["0.0.0.0/0"] 
-# }
+#STORAGE PERMISSION
+resource "google_project_iam_member" "vm_storage_access" {
+  project = "finalexam422-459623"
+  member  = "serviceAccount:1020535552160-compute@developer.gserviceaccount.com"
+  role    = "roles/storage.objectAdmin"  # Grants access to Cloud Storage
+}
 
 
 ############################
@@ -147,16 +151,17 @@ resource "google_compute_instance" "flask_vm" {
     sudo pip3 install -r requirements.txt
 
     # Set up environment variables for the Flask app
-    export INSTANCE_CONNECTION_NAME="${google_sql_database_instance.finalexam422_mysql_instance.connection_name}"
+    export INSTANCE_CONNECTION_NAME="finalexam422-459623:us-central1:finalexam422-mysql-instance"
     export DB_USER="app_user"  
     export DB_HOST="${google_sql_database_instance.finalexam422_mysql_instance.public_ip_address[0].ip_address}"
     export DB_PASSWORD="haitrang76" 
     export DB_NAME="finalexam422-database" 
     export FLASK_ENV="production"
     export GOOGLE_CLOUD_PROJECT="finalexam422-459623"
+    export STORAGE_NAME="${google_storage_bucket.finalexam422_bucket.name}"
     export PORT=80
 
-    python3 init/init_db.py
+    python3 init/init.py
 
     # Start the Flask app using Gunicorn
    sudo -E gunicorn -b :$PORT app:app &

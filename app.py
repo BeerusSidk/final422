@@ -13,7 +13,7 @@ from werkzeug.utils import secure_filename
 ##############################################################################
 # GOOGLE CLOUD BUCKET CONFIG
 ##############################################################################
-bucketName = 'project-4-455718.appspot.com'
+bucketName = os.getenv('STORAGE_NAME')
 
 def upload_to_gcs(file, filename):
     client = storage.Client()
@@ -30,7 +30,6 @@ def upload_to_gcs(file, filename):
 # FLASK CONFIG
 ##############################################################################
 app = Flask(__name__)
-app.secret_key = "some_secret_key"
 
 # Configure where uploaded files are stored
 UPLOAD_FOLDER = os.path.join(os.getcwd(), 'static', 'uploads')
