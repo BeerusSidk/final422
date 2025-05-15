@@ -140,9 +140,9 @@ resource "google_compute_instance" "flask_vm" {
     apt-get install -y git
 
     # Clone the Flask app repository (replace with your actual repository)p
-    cd duckhoi/home/
+    cd /home/duckhoi311
     git clone https://github.com/BeerusSidk/tempFinal422.git
-    cd /SE4220-Project5/SE4220_Project5/photogallery
+    cd tempFinal422/SE4220_Project5/photogallery
 
     #revert back to the project4 commit
     git checkout project4
@@ -153,7 +153,7 @@ resource "google_compute_instance" "flask_vm" {
     # Set up environment variables for the Flask app
     export INSTANCE_CONNECTION_NAME="finalexam422-459623:us-central1:finalexam422-mysql-instance"
     export DB_USER="app_user"  
-    export DB_HOST="${google_sql_database_instance.finalexam422_mysql_instance.public_ip_address[0].ip_address}"
+
     export DB_PASSWORD="haitrang76" 
     export DB_NAME="finalexam422-database" 
     export FLASK_ENV="production"

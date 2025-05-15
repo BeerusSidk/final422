@@ -39,7 +39,7 @@ def initialize_database():
             user_id INT,
             filename VARCHAR(255),
             title VARCHAR(50),
-            uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            upload_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (user_id) REFERENCES users(id)
         )
     """)
