@@ -1,9 +1,7 @@
-# variables.tf
-
 variable "project_id" {
   description = "The GCP project ID."
   type        = string
-  default     = "finalexam422-459623"
+  default     = "genuine-airfoil-459723-p2"
 }
 
 variable "region" {

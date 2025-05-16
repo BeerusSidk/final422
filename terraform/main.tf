@@ -1,10 +1,39 @@
-# main.tf
-
 # Provider Configuration
 provider "google" {
   project = var.project_id
   region  = var.region
   zone    = var.zone
+}
+
+
+#####
+#service account#
+##########
+resource "google_service_account" "flask_vm_sa" {
+  account_id   = "flask-vm-sa"
+  display_name = "Flask VM Service Account"
+}
+
+#####
+#IAM#
+#####
+
+resource "google_project_iam_member" "flask_sa_sql_access" {
+  project = var.project_id
+  role    = "roles/cloudsql.client"
+  member  = "serviceAccount:${google_service_account.flask_vm_sa.email}"
+}
+
+resource "google_project_iam_member" "flask_sa_storage_access" {
+  project = var.project_id
+  role    = "roles/storage.objectAdmin"
+  member  = "serviceAccount:${google_service_account.flask_vm_sa.email}"
+}
+
+resource "google_project_iam_member" "flask_sa_network_access" {
+  project = var.project_id
+  role    = "roles/compute.networkUser"
+  member  = "serviceAccount:${google_service_account.flask_vm_sa.email}"
 }
 
 #########
@@ -28,11 +57,10 @@ resource "google_compute_subnetwork" "finalexam422_subnet" {
 
 resource "google_compute_global_address" "private-ip-range" {
   name          = "private-ip-range"
-  purpose       = "VPC_PEERING"          # <── key difference
+  purpose       = "VPC_PEERING"         
   address_type  = "INTERNAL"
-  prefix_length = 16                     # /24 is plenty for one region
+  prefix_length = 16                   
   network       = google_compute_network.finalexam422_vpc.id
-  # leave region unset (global) or set to var.region – both work
 }
 
 resource "google_service_networking_connection" "private_services_connection" {
@@ -77,7 +105,7 @@ resource "google_storage_bucket" "finalexam422_bucket" {
 # Storage Permissions
 resource "google_project_iam_member" "vm_storage_access" {
   project = var.project_id
-  member  = "serviceAccount:${var.service_account_email}"
+  member  = "serviceAccount:${google_service_account.flask_vm_sa.email}"
   role    = "roles/storage.objectAdmin"
 }
 
@@ -146,7 +174,7 @@ resource "google_compute_instance" "flask_vm" {
   }
 
   service_account {
-    email  = var.service_account_email
+    email  = google_service_account.flask_vm_sa.email
     scopes = ["https://www.googleapis.com/auth/cloud-platform"]
   }
 
@@ -165,15 +193,14 @@ resource "google_compute_instance" "flask_vm" {
 
     # Set up environment variables for the Flask app
 
-    cat <<EOF > /home/duckhoi311/final422/.env
-    INSTANCE_CONNECTION_NAME="${google_sql_database_instance.finalexam422_mysql_instance.connection_name}"
-    DB_USER="${var.db_user}"
-    DB_PASSWORD="${var.db_password}"
-    DB_NAME="${var.db_name}"
-    GOOGLE_CLOUD_PROJECT="${var.project_id}"
-    STORAGE_NAME="${google_storage_bucket.finalexam422_bucket.name}"
-    PORT="${var.port}""
-    EOF
+    echo "INSTANCE_CONNECTION_NAME=\"${google_sql_database_instance.finalexam422_mysql_instance.connection_name}\"" >> /home/duckhoi311/final422/.env
+    echo "DB_USER=\"${var.db_user}\"" >> /home/duckhoi311/final422/.env
+    echo "DB_PASSWORD=\"${var.db_password}\"" >> /home/duckhoi311/final422/.env
+    echo "DB_NAME=\"${var.db_name}\"" >> /home/duckhoi311/final422/.env
+    echo "GOOGLE_CLOUD_PROJECT=\"${var.project_id}\"" >> /home/duckhoi311/final422/.env
+    echo "STORAGE_NAME=\"${google_storage_bucket.finalexam422_bucket.name}\"" >> /home/duckhoi311/final422/.env
+    echo "PORT=\"${var.port}\"" >> /home/duckhoi311/final422/.env
+    echo "SECRET_KEY=\"$(openssl rand -hex 32)\"" >> /home/duckhoi311/final422/.env
 
     python3 init/init.py
 
